@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 // TABS
     function showTabs() {
+
         const tabContent = document.querySelectorAll(".tabcontent"),
           tabParent = document.querySelector(".tabheader__items"),
           tabs = document.querySelectorAll(".tabheader__item");
@@ -37,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         hideTabContent(); 
         showTabContent();  
+
     }
     showTabs();
 // TABS
@@ -62,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "seconds": seconds
             };       
         }
-
+        // Устанавливаем формат времени на таймере : 01 часов, 01 минут и т.д.
         function getZero(num) {
             if (num >= 0 && num < 10) {
                 return `0${num}`;
@@ -103,5 +105,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     timer();
 // TIMER
+
+// MODAL WINDOW
+    function modal() {
+       
+        const modalTrigger = document.querySelectorAll("[data-modal]"),
+              modal = document.querySelector(".modal"),
+              modalCloseBtn = modal.querySelector("[data-close]");
+              
+        function openModal() {
+            modal.classList.toggle("show");
+            document.body.style.overflow = "hidden";
+            clearInterval(modalTimerId);
+        } 
+        
+        function closeModal() {
+            modal.classList.toggle("show");
+            document.body.style.overflow = "";
+        }
+        // СОбытие для появления модалки
+        modalTrigger.forEach(modalBtn => {
+            modalBtn.addEventListener("click", openModal);
+        });
+        // События для скрытие модалки
+        modalCloseBtn.addEventListener("click", closeModal);
+        
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        // Скрываем модалку на Esc
+        document.addEventListener("keydown", (event) => {
+            if (event.code == "Escape" && modal.classList.contains("show")) {
+                closeModal();
+            }
+        });
+
+        const modalTimerId = setTimeout(openModal, 20000);
+
+        function showModalByScroll() {
+            if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+                openModal();
+                window.removeEventListener("scroll", showModalByScroll);
+            }
+        }
+
+        window.addEventListener("scroll", showModalByScroll);
+
+    }
+    modal();
+// MODAL WINDOW
 
 });
