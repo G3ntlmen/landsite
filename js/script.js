@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 // TABS
-    function showTabs() {
 
         const tabContent = document.querySelectorAll(".tabcontent"),
           tabParent = document.querySelector(".tabheader__items"),
@@ -39,12 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
         hideTabContent(); 
         showTabContent();  
 
-    }
-    showTabs();
+    
+
 // TABS
 
 // TIMER
-    function timer() {
 
         const deadline = "2020-12-20";
 
@@ -102,36 +100,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setClock(".timer", deadline);    
 
-    }
-    timer();
+    
 // TIMER
 
 // MODAL WINDOW
-    function modal() {
-       
+
         const modalTrigger = document.querySelectorAll("[data-modal]"),
-              modal = document.querySelector(".modal"),
-              modalCloseBtn = modal.querySelector("[data-close]");
+              modal = document.querySelector(".modal");
+
               
         function openModal() {
-            modal.classList.toggle("show");
+            // modal.classList.toggle("show");
+            modal.classList.add("show");
+            modal.classList.remove("hide");
             document.body.style.overflow = "hidden";
             clearInterval(modalTimerId);
         } 
         
         function closeModal() {
-            modal.classList.toggle("show");
+            // modal.classList.toggle("show");
+            modal.classList.add("hide");
+            modal.classList.remove("show");
             document.body.style.overflow = "";
         }
         // СОбытие для появления модалки
         modalTrigger.forEach(modalBtn => {
             modalBtn.addEventListener("click", openModal);
         });
-        // События для скрытие модалки
-        modalCloseBtn.addEventListener("click", closeModal);
         
         modal.addEventListener("click", (e) => {
-            if (e.target === modal) {
+            if (e.target === modal || e.target.getAttribute("data-close") == "") {
                 closeModal();
             }
         });
@@ -142,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        const modalTimerId = setTimeout(openModal, 20000);
+        const modalTimerId = setTimeout(openModal, 50000);
 
         function showModalByScroll() {
             if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
@@ -153,12 +151,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         window.addEventListener("scroll", showModalByScroll);
 
-    }
-    modal();
+
+
 // MODAL WINDOW
 
 // CARDS BY CLASSES
-    function classCards() {
 
         class MenuCard {
             constructor(src, alt, title, descr, price, parentSelector, ...classes) {
@@ -231,65 +228,92 @@ document.addEventListener("DOMContentLoaded", () => {
             "menu__item"
         ).render();
 
-    }
 // CARDS BY CLASSES
-    classCards();
-// CONTACT FORM
-    function form() {
 
-        const forms = document.querySelectorAll("form");
 
-        const message = {
-            loading: "Загрузка",
-            success: "Спасибо! Скоро мы с вами свяжемся",
-            failure: "Что-то пошло не так..."
-        };
+    // CONTACT FORM
 
-        forms.forEach(item => {
-            postData(item);
-        });
 
-        function postData(form) {
-            form.addEventListener("submit", (e) => {
-                e.preventDefault();
+    const forms = document.querySelectorAll("form");
 
-                const statusMessage = document.createElement("div");
-                statusMessage.classList.add("status");
-                statusMessage.textContent = message.loading;
-                form.append(statusMessage);
+    const message = {
+        loading: "img/icons/spinner.svg",
+        success: "Спасибо! Скоро мы с вами свяжемся",
+        failure: "Что-то пошло не так..."
+    };
 
-                const request = new XMLHttpRequest();
-                request.open("POST", "server.php");
+    forms.forEach(item => {
+        postData(item);
+    });
 
-                request.setRequestHeader("Content-type", "application/json");
-                const formData = new FormData(form);
+    function postData(form) {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-                const object = {};
-                formData.forEach(function(value, key) {
-                    object[key] = value;
-                });
+            const statusMessage = document.createElement("img");
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            // form.append(statusMessage);
+            form.insertAdjacentElement("afterend", statusMessage);
 
-                const json = JSON.stringify(object);
+            const request = new XMLHttpRequest();
+            request.open("POST", "server.php");
 
-                request.send(json);
+            request.setRequestHeader("Content-type", "application/json");
+            const formData = new FormData(form);
 
-                request.addEventListener("load", () => {
-                    if (request.status === 200) {
-                        console.log(request.response);
-                        statusMessage.textContent = message.success;
-                        form.reset();
-                        setTimeout(() => {
-                            statusMessage.remove();
-                        }, 2000);
-                    } else {
-                        statusMessage.textContent = message.failure;
-                    }
-                });
+            const object = {};
+            formData.forEach(function(value, key) {
+                object[key] = value;
             });
-        }
 
+            const json = JSON.stringify(object);
+
+            request.send(json);
+
+            request.addEventListener("load", () => {
+                if (request.status === 200) {
+                    console.log(request.response);
+                    showThanksModal(message.success);
+                    form.reset();
+                    statusMessage.remove();
+                } else {
+                    showThanksModal(message.failure);
+                }
+            });
+        });
     }
-    form();
+
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector(".modal__dialog");
+
+        prevModalDialog.classList.add("hide");
+        openModal();
+
+        const thanksModal = document.createElement("div");
+        thanksModal.classList.add("modal__dialog");
+        thanksModal.innerHTML = `
+            <div class = "modal__content">
+                <div class = "modal__close" data-close>×</div>
+                <div class = "modal__title">${message}</div>
+            </div
+        `;
+        
+
+        document.querySelector(".modal").append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add("show");
+            prevModalDialog.classList.remove("hide");
+            closeModal();
+        }, 4000);
+    }
+
+
+
 // CONTACT FORM
 
 });
